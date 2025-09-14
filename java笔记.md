@@ -67,6 +67,29 @@ shift + f6 对类重命名
 Shift + Alt + ↑（上移） / Shift + Alt + ↓（下移）
 
 # 字符及运算符
+## 1. `/` —— 向零取整
+🔸 (1) 整数除法（int、long、short、byte）
+当两个操作数都是整数类型时，结果仍然是整数。小数部分会被直接截掉（向零取整）。
+```java
+System.out.println(7 / 2);   // 输出 3
+System.out.println(-7 / 2);  // 输出 -3
+System.out.println(1 / 3);   // 输出 0
+```
+- 结果是整数，**不会进行四舍五入**。
+- 分母不能为 0，否则抛出 **`ArithmeticException: / by zero`**
+
+🔸 (2) 浮点数除法（float、double）
+如果任一操作数是浮点数，结果就是浮点数，不会截断小数。
+```java
+System.out.println(7.0 / 2);    // 输出 3.5
+System.out.println(7 / 2.0);    // 输出 3.5
+System.out.println(1.0 / 3);    // 输出 0.333...
+```
+## 2. %  —— 取模（余数）
+## 向上取整
+```
+int result = (a + b - 1) / b;
+```
 ## 符号各种移
 ### **1.** **符号左移（****Arithmetic Left Shift, <<****）**
 
@@ -158,14 +181,14 @@ var scanner = new Scanner(System.in)
 
 **为什么有new**
 
-| **情况**                     | **是否需要 `new`** | **示例**                                    |
-| ---------------------------- | ------------------ | ------------------------------------------- |
-| **普通对象**                 | ✅ 需要             | `Scanner scanner = new Scanner(System.in);` |
-| **数组（字面量初始化）**     | ❌ 不需要           | `String[] arr = {"a", "b", "c"};`           |
-| **数组（动态创建）**         | ✅ 需要             | `String[] arr = new String[3];`             |
-| **基本数据类型**             | ❌ 不需要           | `int a = 10;`                               |
-| **包装类（推荐 `valueOf`）** | ✅ 可选             | `Integer num = Integer.valueOf(10);`        |
-| **Java 10 `var`**            | ❌ 但对象仍需 `new` | `var list = List.of(1, 2, 3);`              |
+| **情况**                | **是否需要 `new`** | **示例**                                      |
+| --------------------- | -------------- | ------------------------------------------- |
+| **普通对象**              | ✅ 需要           | `Scanner scanner = new Scanner(System.in);` |
+| **数组（字面量初始化）**        | ❌ 不需要          | `String[] arr = {"a", "b", "c"};`           |
+| **数组（动态创建）**          | ✅ 需要           | `String[] arr = new String[3];`             |
+| **基本数据类型**            | ❌ 不需要          | `int a = 10;`                               |
+| **包装类（推荐 `valueOf`）** | ✅ 可选           | `Integer num = Integer.valueOf(10);`        |
+| **Java 10 `var`**     | ❌ 但对象仍需 `new`  | `var list = List.of(1, 2, 3);`              |
 
 ++ 自加1
 
@@ -295,7 +318,7 @@ for (int i = 0; i < 5; i++) {
 
 ✅ **i = 2 被跳过，但循环继续**
 
-## ✅ 2. `break` —— **终止整个循环结构**
+## ✅ 2. `break` —— **跳出当前的循环结构**
 ### 📌 作用：
 - 当前 `for` 循环被立刻终止
 - 跳出 `for` 循环体，执行后续的代码（不再进入 `i++`）
@@ -367,11 +390,19 @@ public class Person {
 
     // 构造方法名必须与类名相同
     //构造方法与普通方法的最大不同：构造方法没有返回类型，即使是void也不可以
-    public Person(String name, int age) {
+    *从外部传入参数的写法*
+    public Person(String name, int age) { 
         //字段名 = 方法参数名
         //this避免重名，方法参数名比字段名级别更高，如果重名会两边都默认为参数名，出现错误
         this.name = name;
         this.age = age;
+    }
+    *直接赋初始值的写法*
+    public Person() {
+        //字段名 = 方法参数名
+        //this避免重名，方法参数名比字段名级别更高，如果重名会两边都默认为参数名，出现错误
+        name = 0;
+        age = 0;
     }
 
     // 成员方法（实例方法）
@@ -925,126 +956,32 @@ public class Main {
 }
 ```
 
-# 类型转换
+# 类型
 
-## 基本类型 primitive 
-byte short int long float double char boolean
-## 包装类型
-也属于引用类型，都是Object的子类
-Byte Short Integer Long Float Double Character Boolean
-## 引用类型 reference type
-都是Object的子类
-String (byte[] -> byte)
-byte[]
-int[]
-自定义类
+| 基本类型（primitive） | 包装类型（Wrapper Class） |
+| --------------- | ------------------- |
+| `int`           | `Integer`           |
+| `long`          | `Long`              |
+| `double`        | `Double`            |
+| `float`         | `Float`             |
+| `char`          | `Character`         |
+| `boolean`       | `Boolean`           |
+| `byte`          | `Byte`              |
+| `short`         | `Short`             |
+Java 中的引用类型reference包括：
+1. **包装类型**（如 `Integer`, `Double`）
+2. **类类型**（如 `String`, `ArrayList`, 自定义类 `Student`）
+3. **接口类型**（如 `List`, `Comparable`）
+4.  **数组类型**（如 `int[]`, `String[]`）
 
-## 1. 基本类型之间转换规则
-```java
-    顺箭头 隐式转换(自动),向上转型
-    逆箭头 强制转换, 可能损失精度，向下转型
-byte a = 10;
-int b = a;
+📌 包装类型的用途：
 
-int c = 1000;
-byte d = (byte) c; //先把 int 类型的 c 转换为 byte 类型，再将转换后的结果存储到 d 变量中
-System.out.println(d);
-```
-
-## 2. 包装类型与基本类型之间转换规则
-![微信截图_20250221194606.png](https://cdn.jsdelivr.net/gh/hoo01/image_auto/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250221194606.png)
-
-```java
-int a = 20;
-Integer b = a;//自动装箱Autoboxing
-
-Integer c = new Integer(30);
-int d = c;
-```
-
-## 3. 引用类型之间转换规则
-
-![微信截图_20250221203522.png](https://cdn.jsdelivr.net/gh/hoo01/image_auto/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250221203522.png)
-
-
-```java
-继承特点
-1) 单继承, 子类只能继承一个父类
-2) Object 是其它类型直接或间接的父类型, 定义 class 时, 不写 extends 此类也是继承自 Object
-3) 子类与父类、祖先类型之间，可以用【是一个 is a】的关系来表达
-
-a. 顺箭头 (待转换的对象和目标类型之间 要符合【是一个】的关系) 隐式转换, 向上转型, 使用父类型统一处理子类型
-b. 逆箭头 (待转换的对象和目标类型之间 要符合【是一个】的关系) 强制转换, 向下转型, 将对象还原
-                               cat    dog
-        
-        Animal a = new Cat();  // 对象还是那个对象, 只是用父类型来代表了它
-        Object b = new Cat();
-//      Appliance c = new Cat(); // 不合法
-
-        Cat c = (Cat) a;
-//      Dog d = (Dog) a; // 不行!!!a 是 new Cat()，它的真实类型是 Cat，只是用 Animal 类型的引用来表示它（向上转型，隐式转换）。尝试向下转型成 Dog，但 a 实际上是 Cat，这不符合继承关系。 ClassCastException
-
-        Cat e = (Cat) b; // 可以
-//       Dog f = (Dog) b; // 不行 类型转换异常 ClassCastException
-        Animal g = (Animal) b; // 可以
-```
-
-## 4.获取/判断对象的真正类型
-
-```java
-System.out.println(a.getClass()); // 获取它所代表对象的真正类型,getClass其实是Object的方法
-System.out.println(b.getClass()); // 获取它所代表对象的真正类型
-```
-
-对象 instanceof 类型, 作用：检查对象和类型之间是否符合【是一个】的关系,经常用在向上转型之前做判断
-```java
-System.out.println(a instanceof Cat);
-System.out.println(a instanceof Dog);
-System.out.println(b instanceof Animal);
-```
-
-## 5.接口和实现类的关系
-
-![](java_15_类型.assets/微信截图_20250225213341.png)
-
-```
-//ArrayList可以向上转型为list类型
-
-List<Integer> list1 = new ArrayList<>();
-```
-
-```java
-package com.itheima.module4;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class TestList {
-    public static void main(String[] args) {
-        List<Integer> list1 = new ArrayList<>();//Arraylist可以隐式转化为list
-        list1.add(1);
-        list1.add(2);
-        list1.add(3);
-        list1.add(4);
-        System.out.println(list1.getClass());
-
-        List<Integer> list2 = List.of(1,2,3,4);
-        System.out.println(list2.getClass());
-
-        List<Integer> list3 = List.of(1,2);
-        System.out.println(list3.getClass());
-        /**
-         * List.of一旦确定就不能改变集合，比如不能再add元素
-         */
-        list1.addAll(list2);
-        System.out.println(list1);
-
-        List<Integer> list4 = new ArrayList<>();
-        list4.addAll(List.of(1,2,3,4,5));
-        System.out.println(list4);
-    }
-}
-```
+| 作用        | 举例                                                     |
+| --------- | ------------------------------------------------------ |
+| 放进泛型集合    | `List<Integer> list = new ArrayList<>();`（泛型不支持 `int`） |
+| 支持 null 值 | `Integer x = null;` （`int x = null;` 会报错）              |
+| 使用类方法     | `Integer.parseInt("123")`, `Double.isNaN(x)`           |
+| 做对象传参     | 方法中参数是 `Object`、`Serializable`、`Comparable` 等时         |
 
 # 多态
 ## 前提
@@ -1843,11 +1780,8 @@ button.setOnClickListener(new OnClickListener() {
 ## String
 ### String的特性
 - `java.lang.String` 类代表字符串。Java程序中所有的字符串文字（例如`"hello"` ）都可以看作是实现此类的实例。
-
 - 字符串是常量，用双引号引起来表示。它们的值在创建之后不能更改。
-
 - 字符串String类型本身是final声明的，意味着我们不能继承String。
-
 - String对象的字符内容是存储在一个字符数组value[]中的。`"abc"` 等效于 `char[] data={'h','e','l','l','o'}`。
 ```java
   //jdk8中的String源码：
@@ -1860,11 +1794,8 @@ button.setOnClickListener(new OnClickListener() {
       private int hash; // Default to 0
 ```
   - private意味着外面无法直接获取字符数组，而且String没有提供value的get和set方法。
-
   - final意味着字符数组的引用不可改变，而且String也没有提供方法来修改value数组某个元素值
-
   - 因此字符串的字符数组内容也不可变的，即String代表着不可变的字符序列。即，一旦对字符串进行修改，就会产生新对象。
-
   - JDK9只有，底层使用byte[]数组。
     ```java
     public final class String implements java.io.Serializable, Comparable<String>, CharSequence { 
@@ -1959,12 +1890,24 @@ String trim()
 
 10.结果在常量池中共享
 public String intern()
+
+11.格式化
+String result = String.format(formatString, arguments...);
+- `formatString`：格式模板
+- `arguments...`：要填充的参数（可以有多个）
+返回值是一个 **新的字符串**（不会打印到控制台）。
+
+- `%d`：十进制整数
+- `%02d`：十进制整数，宽度至少 2，不够用 `0` 补齐
+int n = 5;
+System.out.println(String.format("%d", n));    // "5"
+System.out.println(String.format("%02d", n));  // "05"
 ```
 
 ### 查找：
 ```java
-1.是否包含xx
-boolean contains(xx)
+1.是否包含某个子串
+public boolean contains(CharSequence s)
 
 2.从前往后找当前字符串中xx，即如果有返回第一次出现的下标，要是没有返回-1
 int indexOf(xx)
@@ -1978,9 +1921,18 @@ int lastIndexOf(xx)
 5.返回指定子字符串在此字符串中最后一次出现处的索引，从指定的索引开始反向搜索。
 int lastIndexOf(String str, int fromIndex)
 ```
+例子：
+```java
+// 查找字符
+System.out.println(s.indexOf('o'));       // 4 (第一次出现 'o' 的位置)
+System.out.println(s.indexOf('o', 5));    // 7 (从索引 5 开始，找到的 'o')
 
+// 查找子串
+System.out.println(s.indexOf("world"));   // 6
+System.out.println(s.indexOf("java"));    // -1 (不存在)
+```
 ### 字符串截取：
-1. 返回一个新的字符串，它是此字符串的从beginIndex开始截取到最后的一个子字符串。 
+1. 返回一个新的字符串，它是此字符串的从beginIndex开始截取到最后的一个子字符串。 O(1)
 ```java
 String substring(int beginIndex)
 ```
@@ -1990,11 +1942,29 @@ String substring(int beginIndex)
 String substring(int beginIndex, int endIndex)
 ```
  
-3. 用来**按照指定的分隔符**把字符串拆分成若干部分，返回一个 **字符串数组 `String[]`**。
+3. **按照指定的分隔符**把字符串拆分成若干部分，返回一个 **字符串数组 `String[]`**。lc937
 ```java
-String version = "1.0.5";
-String[] arr = version.split("\\.");
+`String.split(String regex)`：基础版 `regex`：正则表达式，表示分隔符。
+
+String s = "1.0.5";
+String[] arr = s.split("\\.");
 得到arr = ["1", "0", "5"]
+
+String s = "a,b,c";
+String[] arr = s.split(",");
+System.out.println(Arrays.toString(arr)); // 输出: [a, b, c]
+
+`String.split(String regex, int limit)`：带限制个数的版本
+String[] arr = str.split(regex, limit);
+`limit`：**最多分成几个元素**。
+- `limit > 0`：最多返回 `limit` 个结果，最后一个包含剩下的全部。
+- `limit = 0`：会去掉结尾的空字符串。
+- `limit < 0`：无限制，保留所有，包括空串。
+String s = "a,b,,";
+String[] s = s.split(",", 2); 得到["a", "b,,"]
+s.split(",", 0); 结果: ["a", "b"] 
+s.split(",", -1);结果: ["a", "b", "", ""]
+s.split(",", 5);结果: ["a", "b", "", ""]
 ```
 ### 开头与结尾：
 ```java
@@ -2008,10 +1978,19 @@ boolean startsWith(String prefix, int toffset)
 boolean endsWith(xx)
 ```
 ### 替换：
-（27）String replace(char oldChar, char newChar)：返回一个新的字符串，它是通过用 newChar 替换此字符串中出现的所有 oldChar 得到的。 不支持正则。
-（28）String replace(CharSequence target, CharSequence replacement)：使用指定的字面值替换序列替换此字符串所有匹配字面值目标序列的子字符串。 
-（29）String replaceAll(String regex, String replacement)：使用给定的 replacement 替换此字符串所有匹配给定的正则表达式的子字符串。 
-（30）String replaceFirst(String regex, String replacement)：使用给定的 replacement 替换此字符串匹配给定的正则表达式的第一个子字符串。 
+```java
+1.返回一个新的字符串，它是通过用 newChar 替换此字符串中出现的所有 oldChar 得到的。 不支持正则。
+String replace(char oldChar, char newChar)
+
+2.使用指定的字面值替换序列替换此字符串所有匹配字面值目标序列的子字符串。 
+tring replace(CharSequence target, CharSequence replacement)
+
+3.使用给定的 replacement 替换此字符串所有匹配给定的正则表达式的子字符串。 
+String replaceAll(String regex, String replacement)
+
+4.使用给定的 replacement 替换此字符串匹配给定的正则表达式的第一个子字符串。 
+String replaceFirst(String regex, String replacement)
+```
 ### char
 在 Java 中，`char` 是一种整数类型，本质是一个 16 位的无符号整数，对应 **Unicode 编码（即 ASCII 扩展）**。
 所以你可以像对整数那样对字符进行：
@@ -2048,11 +2027,15 @@ char[] toCharArray()
 char charAt(int index)
 // 说明：返回字符串中指定下标位置的字符。
 
-3.将整个字符数组转换为字符串（推荐用法
+3.字符数组转换为字符串（推荐用法
 String.valueOf(char[] data)
 举例：
 char[] data = {'H', 'e', 'l', 'l', 'o'};
 String str = String.valueOf(data);
+
+11.字符数组转字符串（另一种方式）
+new String(char[] data)
+// 说明：构造函数方式将字符数组转换为字符串。
 
 4.将字符数组的一部分转换为字符串
 String.valueOf(char[] data, int offset, int count)
@@ -2078,15 +2061,25 @@ int Integer.parseInt(String s)
 int digit = '3' - '0'
 // 说明：利用 ASCII 编码特性将字符型数字转为对应整数值。
 
-10.数字转字符（限于 0-9）
+10.* 数字转字符（限于 0-9）
 char ch = (char)(3 + '0')
-// 说明：利用 ASCII 编码将数字转为字符型数字。
+// 说明：利用 ASCII 编码将数字转为字符型数字。必须+‘0’！
 
-11.字符数组转字符串（另一种方式）
-new String(char[] data)
-// 说明：构造函数方式将字符数组转换为字符串。
+11.多个char拼接string
+String s = "" + c1 + c2; 必须加""! 不然就是ascii码直接相加
+或者
+String s = new StringBuilder().append(c1).append(c2).toString();
 ```
 
+## 常用的 Character 类方法
+| 方法                                  | 作用说明                     |
+| ----------------------------------- | ------------------------ |
+| `Character.isLetter(char c)`        | 判断字符是否是一个字母（a~~z 或 A~~Z） |
+| `Character.isDigit(char c)`         | 判断字符是否是数字（0~9）           |
+| `Character.isLetterOrDigit(char c)` | 判断是否是字母或数字               |
+| `Character.isWhitespace(char c)`    | 判断是否是空白字符（如空格、\n、\t）     |
+| `Character.toLowerCase(char c)`     | 将字符转为小写字母                |
+| `Character.toUpperCase(char c)`     | 将字符转为大写字母                |
 ## StringBuffer、StringBuilder
 因为String对象是不可变对象，虽然可以共享常量对象，但是对于频繁字符串的修改和拼接操作，效率极低，空间消耗也比较高。因此，JDK又在java.lang包提供了可变字符序列StringBuffer和StringBuilder类型。
 `StringBuilder` 不能使用 `==` 或 `.equals()` 来比较内容是否相等，因为：
@@ -2165,6 +2158,8 @@ System.out.println("toString(): " + result);
 18. setLength(newLength)：修改长度
 sb.setLength(5); // 截断为前5个字符
 System.out.println("After setLength(5): " + sb.toString());
+
+sb.setLength(0); // 清空 builder
 ```
 # 排序
 ## 冒泡排序
@@ -2206,24 +2201,39 @@ public class BubbleSortV2 {
 }
 ```
 
-# Compare比较器
+# 比较
+
+## 比较 - 基本类型
+基本数据类型（除boolean外，适用于`int`, `long`, `float`, `double` 等）需要比较大小的话，使用比较运算符`compare`即可。(防止溢出)
+比如 int 可以使用`Integer.compare(a, b)`
+
 ## 自然排序：java.lang.Comparabale
-基本数据类型的数据(除boolean类型外)需要比较大小的话，之使用比较运算符即可，但是引用数据类型是不能使用比较运算符来比较大小的。那么，如何解决这个问题呢?
+**引用数据类型是不能使用比较运算符来比较大小的**。如何解决这个问题呢?
 
-在具体的类中要实现Comparable接口
-    重写抽象方法compareTo(Object o)  在此方法中，指明如何判断当前类的对象的大小。比如：按照价格的高低进行大小的比较。（或从低到高排序）  
-    **返回值是正数：当前对象大。   返回值是负数：当前对象小。    如果0一样大。**  
+✅**在具体的类中重写抽象方法`compareTo(Object o)` -- 实现Comparable接口**
+    - 在此方法中，指明如何判断当前类的对象的大小。比如：按照价格的高低进行大小的比较。（或从低到高排序）  
+    - **返回值是正数：当前对象大。返回值是负数：当前对象小。如果0一样大。**  
 
-### 接口定义
-
+✅引用数据类型（`String`(字典序)、`Long`, `Integer`,`Double`,`Date`,`Character`(unicode)等）都已经实现了 `Comparable` 接口，所以它们具备“自然顺序”，可以直接使用 `.compareTo()` 方法！
+String 比较内容用equals, 字典序比较用compareTo
 ```java
-public interface Comparable<T> {
-    int compareTo(T o);
-}
-```
+"apple".compareTo("banana");  // → -1，因为 "apple" < "banana"
+Integer a = 10, b = 20;
+a.compareTo(b);               // → -1
 
+Date d1 = new Date(100000);
+Date d2 = new Date(200000);
+System.out.println(d1.compareTo(d2)); // 输出 -1（d1 在 d2 前面）
+
+List<String> names = Arrays.asList("Tom", "Alice", "Bob");
+Collections.sort(names); // 自动使用 compareTo（字典序）
+
+List<Integer> nums = Arrays.asList(5, 1, 3);
+Collections.sort(nums); // 按自然数顺序
+```
+### 自定义类排序 - Comparabale接口
 ```java Product
-public class Product implements Comparable{  
+public class Product implements Comparable{ //第一步：继承Comparable，重写方法
     private String name;  
     private Double price;  
   
@@ -2259,35 +2269,21 @@ public class Product implements Comparable{
                 '}';  
     }   
     @Override  
-    public int compareTo(Object o) {//如果你想自定义Comparable的行为，必须在类里实现它
+    public int compareTo(Object o) {
+    //如果你想自定义Comparable的行为，必须在类里实现它
         if(o == this){  
             return 0;  
         }  
         if(o instanceof Product){  
-            Product p = (Product)o;  
-            return Double.compare(this.price, p.price);  
-        }  
+	        Product p = (Product)o;  
+	        int value = Double.compare(this.price, p.price);  
+	        if(value != 0){  
+	            return value;//如果希望价格从大到小，那么是-value  
+	        }  
+	        return this.name.compareTo(p.name);  
+	    }    
         throw new RuntimeException("类型不匹配");  
     }  
-}
-```
-
-如果先比较价格，价格相同，再进行名字的比较（从小到大）
-```java
-@Override  
-public int compareTo(Object o) {  
-    if(o == this){  
-        return 0;  
-    }  
-    if(o instanceof Product){  
-        Product p = (Product)o;  
-        int value = Double.compare(this.price, p.price);  
-        if(value != 0){  
-            return value;//如果希望价格从大到小，那么是-value  
-        }  
-        return this.name.compareTo(p.name);  
-    }  
-    throw new RuntimeException("类型不匹配");  
 }
 ```
 
@@ -2318,23 +2314,46 @@ public class ComparableTest {
 - 如果一个类，实现了Comparable接口，也指定了两个对象的比较大小的规则，但是此时此刻我不想按照它预定义的方法比较大小，但是我又不能随意修改，因为会影响其他地方的使用，怎么办?
 
 解决方法：
-- JDK在设计类库之初，也考虑到这种情况，所以又增加了一个java.util.Comparator接口。强行对多个对象进行整体排序的比较。
-- 重写compare(object o1,object o2)方法，比较o1和o2的大小 : 如果方法返回正整数，则表示o1大于o2 ; 如果返回0，表示相等 ; 返回负整数，表示o1小于o2。
-- 可以将 Comparator 传递给 sort 方法(如 Collections.sort 或 Arrays.sort)，从而允许在排序顺序上实现精确控制。
-
-实现步骤：
-- 创建一个实现了Comparator接口的实现类A
-- 实现类A要求重写Comparator接口中的抽象方法compare(0bjecto1,0bject o2)，在此方法中指明要比较大小的对象的大小关系。(比如，String类、Product类)
-- 创建此实现类A的对象，并将此对象传入到相关方法的参数位置即可。(比如:Arrays.sort(..,类A的实例))
-### 基本语法
+- JDK在设计类库之初，也考虑到这种情况，所以又增加了一个`java.util.Comparator`接口。强行对多个对象进行整体排序的比较。
 ```java
-Collections.sort(集合, new Comparator<T>() {
-    @Override
-    public int compare(T o1, T o2) {
-        // 比较逻辑
-    }
+Collections.sort(list, (a, b) -> {
+    // 比较逻辑，最终要返回 int
+    return ...;  // <0 / =0 / >0
 });
 ```
+无论 `Comparator` 的比较规则多复杂，**最终目的**就是：
+- 返回 **负数** ➜ `a` 排在 `b` 前面
+- 返回 **0** ➜ 相等，顺序不变
+- 返回 **正数** ➜ `a` 排在 `b` 后面
+
+### 可以用 Comparator 的场景
+1. **数组：**
+```java
+String[] arr = {"banana", "apple", "pear"};
+Arrays.sort(arr, (a, b) -> a.compareTo(b));  // 使用 Comparator
+```
+2. **集合类（List、LinkedList、ArrayList 等）：**
+```java
+List<String> list = Arrays.asList("banana", "apple", "pear");
+Collections.sort(list, (a, b) -> a.compareTo(b));
+```
+3. **优先队列（PriorityQueue）：**
+```java
+PriorityQueue<Integer> pq = new PriorityQueue<>((a, b) -> b - a); // 最大堆
+```
+4. **TreeSet / TreeMap：**
+```java
+TreeSet<String> set = new TreeSet<>((a, b) -> b.compareTo(a)); // 倒序 TreeSet
+TreeMap<Integer, String> map = new TreeMap<>((a, b) -> b - a); // 倒序 TreeMap
+```
+✅ 它们本质是排序二叉树结构，构造时可以传入 `Comparator`。
+### 不能用 Comparator 的场景
+| 数据结构                  | 是否支持 Comparator 排序？ | 说明                |
+| --------------------- | ------------------- | ----------------- |
+| `HashMap` / `HashSet` | ❌                   | 无序结构，不能排序         |
+| `Deque` / `Queue`     | ❌（一般情况）             | 除非转换为 List 排序再塞回去 |
+| `Stack`               | ❌（除非转为 List）        | 同上                |
+
 
 ```java
 public class ComparatorTest {  
@@ -2347,7 +2366,7 @@ public class ComparatorTest {
         arr[3] = new Product("dd",300.0);  
         arr[4] = new Product("lulu",5.0);  
   
-//创建了一个基于Comparator接口的匿名内部类,重写Comparator接口中的抽象方法compare(Object o1, Object o2)  
+		//创建了一个基于Comparator接口的匿名内部类, 重写Comparator接口中的抽象方法compare(Object o1, Object o2)  
         Comparator comparator = new Comparator() {  
             @Override  
             public int compare(Object o1, Object o2) {  
@@ -2361,7 +2380,11 @@ public class ComparatorTest {
             }  
         };  
   
-        Arrays.sort(arr,comparator);  
+        Arrays.sort(arr, comparator); 
+    
+		// 以上可以用lambda改写
+		Arrays.sort(arr, (p1, p2) -> Double.compare(p1.getPrice(), p2.getPrice()));
+		
         for(int i = 0 ; i < arr.length ; i++){  
             System.out.println(arr[i]);  
         }  
@@ -2374,18 +2397,18 @@ public class ComparatorTest {
   
 👉 **Lambda 只能写 `Comparator`，不能写 `Comparable`。**
 
-
-```java
-Collections.sort(集合, (a, b) -> 比较规则);
-```
-
 示例1：字符串按长度排序
+- 方式一：用 `Collections.sort()` 排 List
 ```java
 List<String> list = Arrays.asList("apple", "banana", "kiwi");
-
 Collections.sort(list, (a, b) -> a.length() - b.length());
-
 // 输出：["kiwi", "apple", "banana"]
+```
+- 方式二：用 `Arrays.sort()` 排数组
+```java
+String[] arr = {"apple", "banana", "kiwi"};
+Arrays.sort(arr, (a, b) -> a.length() - b.length());
+System.out.println(Arrays.toString(arr));  // [kiwi, apple, banana]
 ```
 
 示例 2：`List<List<String>>` 按第二个元素排序
@@ -2405,7 +2428,16 @@ Arrays.sort(points, (a, b) -> {
 });
 ```
 
-以下做法可能会整形溢出
+按多个元素进行排序
+```java
+Collections.sort(list, (a, b) -> {
+            if (a.c != b.c) return a.c - b.c;
+            if (a.r != b.r) return a.r - b.r;
+            return a.v - b.v;
+        })
+```
+
+运算符做法可能会整形溢出
 ```java
 Arrays.sort(people, (a, b) -> {
             if (a[0] == b[0]) return a[1] - b[1];
@@ -2417,25 +2449,21 @@ Arrays.sort(people, (a, b) -> {
 
 ## 对比两种排序方式
 
-角度一：
-     自然排序:单一的，唯一的
-     定制排序:灵活的，多样的
+| 对比点  | `Comparable`                          | `Comparator`                            |
+| ---- | ------------------------------------- | --------------------------------------- |
+| 排序逻辑 | 写在类里，固定                               | 灵活、可以传入多个不同比较器                          |
+| 使用场景 | 默认排序，如 `Arrays.sort(obj[])`           | 多种排序，如 `Arrays.sort(obj[], Comparator)` |
 
-角度二:
-    自然排序:一劳永逸的
-    定制排序:临时的
-
-角度三:细节
-    自然排序:对应的接口是Comparable，对应的抽象方法compareTo(Object obj)
-    定制排序:对应的接口是Comparator，对应的抽象方法compare(Object obj1,Object obj2)
 # Array数组
 
 ## **定义数组**
 
-    Array 数组可以存多个值
-    1.类型[] 变量名 = new 类型[长度]
-    2.类型[] 变量名 = new 类型[]{元素1，元素2，...}
-    3.类型[] 变量名 = {元素1，元素2，...}
+```java
+Array 数组可以存多个值
+1.类型[] 变量名 = new 类型[长度]
+2.类型[] 变量名 = new 类型[]{元素1，元素2，...}
+3.类型[] 变量名 = {元素1，元素2，...}
+```
  
 ```java
 public class TestArrat {
@@ -2492,8 +2520,8 @@ int[] copy = Arrays.copyOf(arr, arr.length);             // 完整复制
 int[] sub = Arrays.copyOfRange(arr, 1, 4);               // 提取索引1~3
 ```
 
-## 数组转其他类型
-转List
+## Arrays, List, int[], String 转换
+### Arrays转List
 ```java
 Integer[] boxedArr = {1, 2, 3};
 List<Integer> list = Arrays.asList(boxedArr);
@@ -2505,25 +2533,39 @@ int[] arr = {1, 2, 3};
 List<Integer> list = Arrays.stream(arr).boxed().collect(Collectors.toList());
 ```
 
-toString返回数组的字符串形式 `Arrays.toString(arr)`
-
+### Arrays转String
 ```java
 import java.util.Arrays;  
   
 public class ArraysMethod01 {  
     public static void main(String[] args) {  
         Integer[] integers = {1,20,90};  
-//        //遍历数组  
-//        for(int i = 0; i < integers.length; i++){  
-//            System.out.println(integers[i]);  
-//        }  
         //直接使用Arrays.toString方法，显示数组  
         System.out.println(Arrays.toString(integers));  
     }  
 }
 ```
-
 得到[1,20,90]
+
+### List 转 Array
+慎用 最好还是遍历
+```java
+一维：
+List<String> list = new ArrayList<>();
+- 写法一
+String[] arr = list.toArray(new String[list.size()]);
+- 写法二
+String[] arr = list.toArray(new String[0]);  // 运行时会新建 size 个元素的数组返回
+
+二维：
+List<int[]> list = new ArrayList<>();
+// ... add [1,2], [3,4], ...
+- 写法一
+int[][] result = list.toArray(new int[list.size()][]);
+- 写法二
+int[][] result = list.toArray(new int[0][]);
+```
+
 ## sort排序（自然排序和定制排序）
 
 数组是引用类型，通过sort排序后，会直接影响到 实参 arr
@@ -2818,6 +2860,9 @@ List<String> list = Arrays.asList(arr);// 输出 [a, b, c]
 `Object set(int index，0bject ele)`设置指定index位置的元素为ele ，相当于是替换。
 #### 查
 `Object get(int index)`获取指定index位置中的元素
+
+`List.contains(Object o)` - `List` 接口本身 **没有** `contains` 方法。但它的常见实现类（例如 `ArrayList`、`LinkedList`）都继承自 `Collection` 接口，而 `Collection` 是有 `contains(Object o)` 方法的。👉 所以 `list.contains(x)` 其实是可以用的。
+
 `int indexOf(Object obj)`返回obj在集合中首先出现的位置
 `int lastIndexOf(Object obj)`返回obj在集合中末次出现的位置
 `List subList(int fromIndex,int toIndex)`返回从fromIndex到toIndex位置的子集合 前闭后开
@@ -2842,7 +2887,7 @@ public class ListMethod {
 ![微信截图_20250307111241.png](https://cdn.jsdelivr.net/gh/hoo01/image_auto/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250307111241.png)
 
 ## ArrayList
-ArrayListSource.java底层源码
+`ArrayListSource.java`底层源码
 1）ArrayList中维护了一个Object类型的数组elementData.
 transient Object[] elementData (transient表示该属性不被序列化)
 2）当创建ArrayList对象时，如果使用的是无参构造器，则初始elementData容量为0，第1次添加，则扩容elementData为10，如需要再次扩容，则扩容elementData为1.5倍。
@@ -3045,10 +3090,8 @@ public class ListTest {
 - 可以使用迭代器
 - 增强for
 - ==不能使用==索引的方式来获取，没有`get()`方法，不能用普通的for循环
-
 ### Set的使用场景
 Set使用的频率较少，常用来去重
-
 🔷 1. 创建 Set
 `Set<String> set = new HashSet<>();`
 
@@ -3086,7 +3129,9 @@ while (it.hasNext()) {
 
 🔷 7. 清空 Set `clear()`
 `set.clear();  // 删除所有元素`
-
+`boolean removeAll(Collection<?> c)`- 将当前 `Set` 中 **所有在集合 `c` 中出现的元素** 删除。
+    
+- 返回值为 `true` 表示集合发生了变化（即有元素被移除）；否则返回 `false`。
 🔷 8. 判断是否为空 `isEmpty()`
 `set.isEmpty();  // true if size == 0`
 
@@ -3218,164 +3263,71 @@ public boolean equals(Object o) {
 **如果桶里已经有对象，调用 `equals()` 进一步判断是否为同一对象**：
 - **如果 `equals()` 返回 `true`**，说明是相同的对象，不再存入 `HashSet`（去重）。
 - **如果 `equals()` 返回 `false`**，说明虽然 `hashCode()` 相同，但对象不一样（哈希碰撞），仍然可以存入 `HashSet`。
-
-#### LinkedHashSet-HashSet子类
-
-- LinkedHashSet底层是一个LinkedHashMap,底层维护了一个 数组+双向链表，所以有顺序
-- 不允许重复元素
-- LinkedHashSet 根据元素的 hashCode 值来决定元素的存储位置，同时使用链表维护元素的次序，这使得元素看起来是以插入顺序保存的。便于频繁地查询
-- ![微信截图_20250312150019.png](https://cdn.jsdelivr.net/gh/hoo01/image_auto/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250312150019.png)
-
-图中来看：
-- `123` 和 `HSP` 在哈希表中的索引位置相同，说明它们的 **哈希值计算后得到相同的存储索引**，因此 **它们被存放在同一个哈希桶（bucket）中**。
-- **但是 `LinkedHashSet` 需要保证插入顺序，所以 `HSP` 仍然必须接在 `123` 的后面形成链表。**
-
-这种情况可能是 `HSP` 和 `123` 发生了 **哈希碰撞**，即：
-`123.hashCode() % table.length == "HSP".hashCode() % table.length`
-
-- 在LinkedHastset 中维护了一个hash表和双向链表(LinkedHashSet 有head 和 tail)
-- 每一个节点有 before 和 after 属性,这样可以形成双向链表
-- 在添加一个元素时，先求hash值，再求索引，确定该元素在table的位置，然后将添加的元素加入到双向链表(如果已存在，不添加[原则和hashset一样])
-```
-tail.next = newElement 
-newElement.pre = tail
-tail = newEelment;
-```
-- 这样的话，我们遍历LinkedHashSet 也能确保插入顺序和遍历顺序一致
-- 添加第一次时，直接将 数组table 扩容到 16,存放的结点类型是 `LinkedHashMap$Entry`数组是 `HashMap$Node[]`存放的元素/数据是 `LinkedHashMap$Entry`
-
+#### LinkedHashSet - HashSet子类
+1. **基本概念**
+- `LinkedHashSet` 是 Java 集合框架中的一个类，位于 `java.util` 包里。
+- 它继承自 `HashSet`，底层其实就是 **哈希表（HashMap） + 双向链表** 的组合。
+- 主要特点：
+    1. **不允许重复元素**（和 `HashSet` 一样）。
+    2. **有顺序**：保持元素的 **插入顺序**。
+    3. **允许存储 null** 值（最多一个）。
+---
+2. 底层原理
+- 内部是通过 `HashMap` 来存储元素，元素作为 key，value 使用一个固定的虚拟对象。
+- 与 `HashSet` 不同的是，`LinkedHashSet` 额外维护了一条 **双向链表**，用来记录插入的先后顺序。
+- 所以它在遍历时，**输出顺序就是插入的顺序。**
 ### TreeSet
+- `TreeSet` 是基于 **红黑树（Red-Black Tree，一种自平衡二叉搜索树）** 实现的。
+- 特点：
+    1. **自动按字典序排序**（默认升序，也可以自定义 `Comparator`）。
+    2. **不允许重复元素**。
+    3. **增删查都是 O(logN)**。
 
-- 底层数据结构：**红黑树**。
-- 不再考虑hashcode()和equals()方法，重写这俩无用。
-- 特点：不允许重复、**实现排序（自然排序或定制排序）**
-- 添加到treeset的**元素必须同类型**
-#### 使用Comparable自然排序比较
-
-```java User
-public class User implements Comparable {  
-    String name;  
-    int age;  
-  
-    public User() {  
-    }  
-  
-    public User(String name, int age) {  
-        this.name = name;  
-        this.age = age;  
-    }  
-  
-    @Override  
-    public String toString() {  
-        return "User{" +  
-                "name='" + name + '\'' +  
-                ", age=" + age +  
-                '}';  
-    }  
-  
-    @Override  
-    public boolean equals(Object o) {  
-        System.out.println("User equals()....");  
-        if (this == o) return true;  
-        if (o == null || getClass() != o.getClass()) return false;  
-        User user = (User) o;  
-        return age == user.age && Objects.equals(name, user.name);  
-    }  
-  
-    @Override  
-    public int hashCode() {  
-        return Objects.hash(name, age);  
-    }  
-    /*  
-    * 自然排序：想同时比较年龄和姓名  
-    * */    
-    @Override  
-    public int compareTo(Object o) {  
-        if(this == o){  
-            return 0;  
-        }  
-        if(o instanceof User){  
-            User u = (User) o;  
-            int value = this.age - u.age;  
-            if(value == 0){  
-                return this.name.compareTo(u.name);  
-            }  
-            return value;  
-        }  
-        throw new RuntimeException("类型不匹配");  
-    }  
-}
-```
-
+和 `HashSet`、`LinkedHashSet` 不同，它的主要价值在于 **顺序性** 和 **范围操作**。
+#### 常见使用场景：
+- 需要有序去重，比如要存储一堆字符串，并要求按字典序排序、且不能重复
+- 实现 **排行榜/排名系统**
+- 快速找到 **最接近的元素**
+     - `TreeSet` 提供了一些特别有用的 API：   
 ```java
-public class TreeSetTest {  
-    @Test  
-    public void test2(){  
-        TreeSet set = new TreeSet();  
-        User u1 = new User("tom",23);  
-        User u2 = new User("jerry",43);  
-        User u3 = new User("rose",13);  
-        User u4 = new User("jack",23);  
-        User u5 = new User("tony",33);  
-  
-        set.add(u1);  
-        set.add(u2);  
-        set.add(u3);  
-        set.add(u4);  
-        set.add(u5);  
-  
-        Iterator iterator = set.iterator();  
-        while(iterator.hasNext()){  
-            System.out.println(iterator.next());  
-        }  
-    }  
-}
+`ceiling(e)`：返回 ≥ e 的最小元素
+`floor(e)`：返回 ≤ e 的最大元素
+`higher(e)`：返回 > e 的最小元素
+`lower(e)`：返回 < e 的最大元素
 ```
-
-#### 使用comparator定制排序比较
+- **范围查询（子集操作）**
+`TreeSet` 支持区间切割：
+- `headSet(e)`：小于 e 的所有元素
+- `tailSet(e)`：大于等于 e 的所有元素
+- `subSet(e1, e2)`：区间 `[e1, e2)`
+比如要找 **某个价格区间内的商品**：
 ```java
-public class TreeSetTest {  
-    @Test  
-    public void test3(){  
-        Comparator comparator = new Comparator() {  
-            @Override  
-            public int compare(Object o1, Object o2) {  
-                if(o1 instanceof User && o2 instanceof User){  
-                    User u1 = (User) o1;  
-                    User u2 = (User) o2;  
-  
-                    int value = u1.getName().compareTo(u2.getName());  
-                    if(value != 0){  
-                        return value;  
-                    }  
-                    return -(u1.getAge() - u2.getAge());  
-                }  
-                throw new RuntimeException("类型不匹配");  
-            }  
-        };  
-  
-        TreeSet set = new TreeSet(comparator);  
-        //如果提供了 Comparator，那么 TreeSet 会按照 Comparator 规则排序。不传 Comparator，它会尝试使用 User 类的 "自然排序"  
-        User u1 = new User("tom",23);  
-        User u2 = new User("jerry",43);  
-        User u3 = new User("rose",13);  
-        User u4 = new User("jack",23);  
-        User u5 = new User("tony",33);  
-  
-        set.add(u1);  
-        set.add(u2);  
-        set.add(u3);  
-        set.add(u4);  
-        set.add(u5);  
-  
-        Iterator iterator = set.iterator();  
-        while(iterator.hasNext()){  
-            System.out.println(iterator.next());  
-        }  
-    }  
-}
-```
+TreeSet<Integer> prices = new TreeSet<>();
+prices.add(100);
+prices.add(200);
+prices.add(300);
+prices.add(400);
 
+System.out.println(prices.subSet(150, 350)); // [200, 300]
+```
+- 场景五：需要 **自定义排序**
+比如要存储学生对象，按照成绩排序：
+```java
+class Student {
+    String name;
+    int score;
+    Student(String n, int s) { name = n; score = s; }
+    public String toString() { return name + ":" + score; }
+}
+
+TreeSet<Student> students = new TreeSet<>((a, b) -> b.score - a.score); // 按分数降序
+students.add(new Student("Alice", 85));
+students.add(new Student("Bob", 95));
+students.add(new Student("Cathy", 90));
+
+System.out.println(students);
+// [Bob:95, Cathy:90, Alice:85]
+```
 ### Set接口练习1 - integer去重
 定义方法如下:public static List duplicateList(List list)
 要求:
@@ -3444,7 +3396,6 @@ public class Exer02 {
 }
 ```
 ## Map接口
-
 - **Map与Collection并列存在。用于保存具有映射关系的数据:Key-Value**
     k-v
     k->具体的对象
@@ -3452,19 +3403,31 @@ public class Exer02 {
 - Map 中的 key 和 value 可以是任何引用类型的数据，会封装到HashMap$Node对象中
 - Map 中的 key 不允许重复，原因和HashSet 一样，value可以重复
 - Map 的key 可以为 null, value 也可以为null ，注意  只能有一个key为null；value 可以多个为null
-- 常用String类作为Map的 key
-
 ### Map接口实现类的对比
-
-- **HashMap:** 主要实现类；线程不安全的，效率高；可以添加null的key和value；底层数据结构是数组+单向链表+红黑树
+> **HashMap:** 
+- 主要实现类；线程不安全的，效率高；
+- 可以添加null的key和value；
+- 底层数据结构是数组+单向链表+红黑树
     - **LinkedHashMap:** HashMap的子类；在HashMap的结构上，增加了一对双向链表，用于记录添加元素的先后顺序，便于频繁的遍历
+- **key 无序（几乎随机）, 支持 `hashCode()` 和 `equals()`**
+- 查找性能 平均 O(1)，最坏 O(n)
 
-- **TreeMap:** 底层使用红黑树存储；可以按照添加key-value中的key元素的指定的属性大小进行遍历。使用自然排序和定制排序。
+>**TreeMap:** 
+- 底层使用红黑树存储；
+- **key 有序 ：可以按照添加key-value中的key元素的指定的属性大小进行遍历。使用自然排序和定制排序。`compareTo()` 或自定义 `Comparator`**
+- 查找性能 O(log n)
 
-- **HashTable:** 古老实现类；线程安全的，效率低;不可以添加null的key和value；结构是数组+单向链表结构
+>**HashTable:** 
+- 古老实现类；线程安全的，效率低; 不可以添加null的key和value；结构是数组+单向链表结构
     - Properties: 其key和value都是string类型，常用来处理属性文件
 
+>TreeMap 和 HashMap的共同点
 
+| 点                   | 描述                                             |
+| ------------------- | ---------------------------------------------- |
+| 都实现了 `Map<K, V>` 接口 | 都可以 `put(key, val)`、`get(key)`、`remove(key)` 等 |
+| 都是 key-value 结构     | 存储的是键值对，key 不重复                                |
+| 都支持遍历               | 都可以通过 `entrySet()`、`keySet()` 遍历所有 key-value 对 |
 ```java
 public class Map_ {  
     public static void main(String[] args) {  
@@ -3482,7 +3445,6 @@ public class Map_ {
 ### Map中key-value的特点
 
 ![微信截图_20250312173650.png](https://cdn.jsdelivr.net/gh/hoo01/image_auto/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250312173650.png)
-
 - 放key的集合是Set,无序性、不可重复性。即同一个Map对象所对应的类，须重写hashCode()和equals()
 - 放value的集合，value的位置取决于key，也是无序的，但是允许重复，并不满足list有序重复的特点，所以只能称为collection
 ![微信截图_20250316105508.png](https://cdn.jsdelivr.net/gh/hoo01/image_auto/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250316105508.png)
@@ -3505,7 +3467,7 @@ public V put(K key, V value) {
 就会插入一对新的 key-value 键值对。
 如果你不想覆盖旧值，可以用 `putIfAbsent()` 来避免
 
-2. `putIfAbsent(k, v)`**仅在 key 不存在时才赋值**，**如果 `k` 已经存在于 `Map` 中，`putIfAbsent(k, v)` 什么都不会做**，原来的值会被保留，`v` 被直接忽略。
+2. `putIfAbsent(k, v)`只在 key 不存在时插入新的键值对。**如果 `k` 已经存在于 `Map` 中，`putIfAbsent(k, v)` 什么都不会做**，原来的值会被保留，`v` 被直接忽略。
 ```java
 Map<Integer, List<Integer>> map = new HashMap<>();
 map.putIfAbsent(3, new ArrayList<>());
@@ -3513,7 +3475,8 @@ map.get(3).add(10);
 ```
 
 3.`computeIfAbsent`
-computeIfAbsent(key, k -> v) **"Absent" 是指 key 不存在于 map 中**，如果 map 中 **没有这个 key（缺 key）**，那么就“计算”一个 value 放进去。
+- 如果 key 不存在，就通过提供的 **lambda 函数** 计算出一个值并插入
+- 如果 key 存在，什么都不做，直接返回旧值 lc1152
 ```java
 Map<String, List<String>> map = new HashMap<>();
 map.computeIfAbsent("A", k -> new ArrayList<>()).add("hello");
@@ -3530,8 +3493,63 @@ map.computeIfAbsent("A", k -> new ArrayList<>()).add("banana"); // 不会执行 
 `Object remove(Object key)`
 void clear()：清空当前map中的所有数据
 #### 改
-`put(Object key,Object value)`
+1.`put(Object key, Object value)`
 `putAll(Map m)`
+
+2. merge
+```java
+default V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction)
+- **`key`**  
+    要合并的键。
+- **`value`**  
+    提供的值（通常是你希望插入或更新的值）。
+- **`remappingFunction`**  
+    当 `key` 已经存在时，如何把旧值和新值合并的规则。
+    - 接收两个参数：旧值（oldValue）、新值（newValue）
+    - 返回一个结果值作为新的 value。
+    - 如果返回 `null`，这个键会从 `Map` 中被移除。
+
+方法逻辑：
+- **如果 key 不存在**  
+    → 直接插入 `(key, value)`。
+    
+- **如果 key 已存在**  
+    → 用 `remappingFunction` 把旧值和新值合并，然后更新该键的 value。
+    
+- **如果 remappingFunction 返回 null**  
+    → 删除该键。
+    
+示例一：
+Map<String, Integer> counts = new HashMap<>();
+String[] words = {"apple", "banana", "apple", "orange", "banana", "apple"};
+
+for (String w : words) {
+    counts.merge(w, 1, (oldVal, newVal) -> oldVal + newVal);
+}
+
+System.out.println(counts); 输出: {orange=1, banana=2, apple=3}
+
+示例二：
+合并字符串
+Map<String, String> map = new HashMap<>();
+map.put("a", "Hello");
+
+map.merge("a", " World", (oldVal, newVal) -> oldVal + newVal);
+map.merge("b", "New", (oldVal, newVal) -> oldVal + newVal);
+
+System.out.println(map); 输出: {a=Hello World, b=New}
+
+示例三：
+删除键
+Map<String, Integer> map = new HashMap<>();
+map.put("x", 5);
+
+// 返回 null 表示删除
+map.merge("x", 10, (oldVal, newVal) -> null);
+
+System.out.println(map); 输出: {}  (key "x" 被删除了)
+```
+
 #### 查
 ```JAVA
 1. 获取指定key对应的value（key 不存在时返回 null）
@@ -3559,16 +3577,16 @@ System.out.println(map.containsKey(100)); // false
 
 举例2：
 ```JAVA
-map.put(sum, map.getOrDefault(sum, 0) + 1);
+map.put(key, map.getOrDefault(key, 0) + 1);
 ```
-> 如果 `sum` 这个值**已经存在**于哈希表里，就把它当前的次数取出来，加 1。  
-> 如果 `sum` **还没有出现过**，就当它的次数是 0，然后加 1。
+> 如果 `key` 这个值**已经存在**于哈希表里，就把它当前的次数取出来，加 1。  
+> 如果 `key` **还没有出现过**，就当它的次数是 0，然后加 1。
 > 相当于：
 ```java
-if (map.containsKey(sum)) {
-    map.put(sum, map.get(sum) + 1);
+if (map.containsKey(key)) {
+    map.put(key, map.get(key) + 1);
 } else {
-    map.put(sum, 1);
+    map.put(key, 1);
 }
 ```
 
@@ -3577,93 +3595,53 @@ if (map.containsKey(sum)) {
 - int size()：返回map中key-value对的个数
 - boolean isEmpty()：判断当前map是否为空
 - boolean equals(Object obj)：判断当前map和参数对象obj是否相等
-### 元视图操作办法（重要）
+### Map 的元视图操作
+#### 本质
+- `Map<K, V>`：**不是 Collection**
+- 它的三种“视图”方法可以将 `Map` 转为 Collection 进行遍历
+#### 三大元视图方法
 
-| 方法               | 返回类型                   | 含义                                                                     |
-| ---------------- | ---------------------- | ---------------------------------------------------------------------- |
-| `map.keySet()`   | `Set<K>`               | 返回所有key构成的Set集合                                                        |
-| `map.values()`   | `Collection<V>`        | 将每个 `key` 对应的 **value “打包”** 后，**按原样分开放进一个集合里**，而不是把所有 value 的内容合并到一起。 |
-| `map.entrySet()` | `Set<Map.Entry<K, V>>` | 返回所有key-value对构成的Set集合，最常用 👈                                          |
+| 方法               | 返回类型                   | 含义与用途                                                                        |
+| ---------------- | ---------------------- | ---------------------------------------------------------------------------- |
+| `map.keySet()`   | `Set<K>`               | 所有的 key 构成的 Set，**用于只关注 key 的场景**想对 key 排序                                   |
+| `map.values()`   | `Collection<V>`        | 所有的 value 构成的 Collection（可能有重复），**用于统计/查看 value**, 想统计 value 次数              |
+| `map.entrySet()` | `Set<Map.Entry<K, V>>` | 所有的 key-value 键值对构成的 Set，想对 k-v 排序或比较频率, 可用于`PriorityQueue<Map.Entry<K, V>>` |
 
-重点：
-
-| 表达式              | 类型                                               |
-| ---------------- | ------------------------------------------------ |
-| `map`            | `Map<Integer, Integer>`（不是Collection）            |
-| `map.entrySet()` | `Set<Map.Entry<Integer, Integer>>` ✅ 是Collection |
-
-### 遍历
+#### Map.Entry
+- `Map.Entry<K, V>` 是 `entrySet()` 中的每个元素，代表一组 **键值对**
+- 提供两个方法：
 ```java
-public class MapSource_ {  
-    public static void main(String[] args) {  
-        Map map = new HashMap();  
-        map.put("no1","hsp");  
-        map.put("no2","zwj");  
-  
-        Set set = map.entrySet();  
-        System.out.println(set.getClass());  
-        for (Object o : set) {  
-            System.out.println(o);  
-        }  
-    }  
+entry.getKey();   // 获取键
+entry.getValue(); // 获取值
+```
+
+### 遍历 Map 的三种方式
+✅ 方法1：只遍历 key，再通过 map.get(key) 获取 value
+```java
+Map<String, String> map = new HashMap<>();
+for (String key : map.keySet()) {
+    System.out.println(key + " -> " + map.get(key));
 }
 ```
 
-Map.Entry提供了getKey和getValue两种方法，方便遍历
-
+✅ 方法2：只遍历 values（只能遍历 value，无法获取 key）
 ```java
-public class MapFor {  
-    public static void main(String[] args) {  
-        Map map = new HashMap();  
-        map.put("dengchao","sunli");  
-        map.put("wbq","mr");  
-        map.put("sz","mr");  
-        map.put("llb",null);  
-        map.put(null,"lyf");  
-        map.put("lh","gxt");  
-  
-        //第一组：先取出所有的key,包装成一个set,通过Key取出对应的Value  
-        Set keyset = map.keySet();  
-        //1.增强for  
-        for (Object key : keyset) {  
-            System.out.println(key + "-" + map.get(key));  
-        }  
-        //2.迭代器  
-        Iterator iterator = keyset.iterator();  
-        while (iterator.hasNext()) {  
-            Object key =  iterator.next();  
-            System.out.println(key + "-" + map.get(key));  
-        }  
-        //第二组：取出所有values  
-        Collection values = map.values();  
-        //这里可以使用Collections使用的遍历方法：增强for、iterator  
-        
-        * 第三组：通过EntrySet来获取k-v  
-        Set entrySet = map.entrySet(); // EntrySet<Entry<K,V>>  
-        System.out.println("entry取出法");  
-        for (Object entry : entrySet) {  
-            //entry是一个内部接口,调用需要加Map.,getKey()和getValue()  
-            Map.Entry m = (Map.Entry) entry;  
-            System.out.println(m.getKey() + "-" + m.getValue());  
-        }  
-        //迭代器  
-        Iterator iterator3 = entrySet.iterator();  
-        while (iterator3.hasNext()) {  
-            Object entry = iterator3.next();  
-            System.out.println(entry.getClass());//这里会输出HashMap$Node  
-            Map.Entry m = (Map.Entry) entry;//向下转型  
-            System.out.println(m.getKey() + "-" + m.getValue());  
-        }  
-    }  
+for (String value : map.values()) {
+    System.out.println(value);
 }
 ```
 
+✅ 方法3：直接遍历 entrySet（最推荐 ✅）
+```java
+for (Map.Entry<String, String> entry : map.entrySet()) {
+    System.out.println(entry.getKey() + " -> " + entry.getValue());
+}
+```
 ### TreeMap（有序）
 - 底层使用红黑树存储;
-- 可以按照添加的key-value中的key元素的指定的属性的大小顺序进行遍历。
-- 需要考虑使用1.自然排序 2.定制排序。
+- 可以按照添加的 key-value 中的key元素的指定的属性的大小顺序进行遍历。支持 `compareTo()` 或自定义 `Comparator`
 - 要求：向TreeMap中添加的key必须是同一个类型的对象，不一样怎么比较？
-
+- 查找性能：O(log n)
 #### 自然排序举例：
 之前实现了compareTo的 class User
 ```java
@@ -3722,7 +3700,6 @@ User{name='jack', age=23}=45
 User{name='tony', age=33}=99
 User{name='jerry', age=43}=76
 ```
-
 #### 定制排序举例
 ```java
 public class TreeMapTest {  
@@ -3764,6 +3741,34 @@ public class TreeMapTest {
     }  
 }
 
+```
+#### TreeMap 独有的方法（按顺序操作的利器）⭐
+| 方法                                     | 作用                                                           |
+| -------------------------------------- | ------------------------------------------------------------ |
+| `firstKey()` / `lastKey()`             | 获取最小 / 最大 key                                                |
+| `ceilingKey(k)`                        | ≥ k 的最小 key                                                  |
+| `floorKey(k)`Map.Entry                 | ≤ k 的最大 key ✅（TimeMap 就靠它）                                   |
+| `higherKey(k)`                         | > k 的最小 key                                                  |
+| `lowerKey(k)`                          | < k 的最大 key                                                  |
+| `subMap(from, to)`                     | 获取一段范围内的子映射                                                  |
+| `pollFirstEntry()` / `pollLastEntry()` | 弹出最小/最大 entry                                                |
+- `floorEntry(K key)`
+找到 **小于或等于 `key` 的最大键值对 (Entry)**。返回的是 `Map.Entry<K, V>`
+举例：
+```java
+TreeMap<Integer, String> map = new TreeMap<>();
+map.put(1, "a");
+map.put(3, "b");
+map.put(5, "c");
+
+System.out.println(map.floorEntry(4));  // 输出：3=b
+System.out.println(map.floorEntry(3));  // 输出：3=b（刚好等于）
+System.out.println(map.floorEntry(2));  // 输出：1=a
+System.out.println(map.floorEntry(0));  // 输出：null（没有比 0 小的 key）
+
+Map.Entry<Integer, String> entry = map.floorEntry(4);
+int k = entry.getKey();
+String v = entry.getValue();
 ```
 
 ### Hashtable与Properties的使用
@@ -4629,5 +4634,72 @@ public void test7(){
 - 的左边:lambda形参列表，参数的类型都可以省略。如果形参只有一个，则一对()也可以省略。
 - 的右边:lambda体，对应着重写的方法的方法体。如果方法体中只有一行执行语句，则一对{}可以省略。
 - 如果有return关键字，则必须一并省略。
+# 随机数
+## ✅ `Random` 是什么？
 
+`Random` 是 Java 提供的一个伪随机数生成器类，位于 `java.util` 包中。
+`Random rand = new Random();`
+就创建了一个随机数生成器对象，以后可以调用它生成各种类型的随机值：
 
+| 方法名                  | 含义                         |
+| -------------------- | -------------------------- |
+| `rand.nextInt(n)`    | 生成一个 `[0, n)` 范围的随机整数      |
+| `rand.nextInt()`     | 生成一个任意整数（可正可负）             |
+| `rand.nextDouble()`  | 生成 `[0.0, 1.0)` 之间的 double |
+| `rand.nextBoolean()` | 返回 `true` 或 `false`        |
+| `rand.nextLong()`    | 返回一个随机 long 值              |
+# `Optional<T>`
+`Optional<T>` 是 Java 8 引入的一个泛型容器类，用来表示**值可能存在，也可能不存在**。  
+常见方法分成三类：**创建值**、**取值**、**处理值**。
+## 1. 创建 Optional
+```java
+Optional<Integer> a = Optional.of(5);        // 必须有值，否则 NPE
+Optional<Integer> b = Optional.ofNullable(null); // 允许 null，结果是 Optional.empty()
+Optional<Integer> c = Optional.empty();      // 显式创建一个空 Optional
+```
+## 2. 判断 & 取值
+```java
+Optional<Integer> opt = Optional.of(10);
+
+opt.isPresent();     // true，如果有值
+opt.isEmpty();       // false，JDK 11+ 才有
+
+opt.get();           // 返回值 (10)，但如果是 empty 会抛异常（少用）
+opt.orElse(0);       // 如果有值返回值，否则返回默认值 0
+opt.orElseGet(() -> 42); // 没值时用 lambda 提供默认值
+opt.orElseThrow();   // 没值时抛 NoSuchElementException
+opt.orElseThrow(() -> new IllegalArgumentException("not found")); // 自定义异常
+```
+## 3. 处理值（函数式风格）
+```java
+Optional<Integer> opt = Optional.of(10);
+
+// 如果有值就执行
+opt.ifPresent(x -> System.out.println("Value: " + x)); 
+
+// 映射成新的 Optional
+Optional<String> strOpt = opt.map(x -> "Number is " + x); 
+System.out.println(strOpt.get()); // "Number is 10"
+
+// 只在有值时进一步处理
+Optional<Integer> filtered = opt.filter(x -> x > 5); 
+System.out.println(filtered.isPresent()); // true
+```
+## 4. 综合例子
+```java
+Optional<String> name = Optional.ofNullable(null);
+
+// 不推荐：直接 get
+// name.get(); // 抛异常
+
+// 推荐写法：
+String result = name.orElse("default");
+System.out.println(result); // "default"
+
+// 用 map 转换
+Optional<String> upper = name.map(s -> s.toUpperCase());
+System.out.println(upper.isPresent()); // false
+
+// ifPresent
+name.ifPresent(s -> System.out.println("Hello " + s));
+```
